@@ -33,7 +33,6 @@ export default function App() {
   }
 
   function showMessage(message, seconds, callback) {
-    console.log(message);
     setMessage(message);
     setTimeout(() => {
       setMessage("");
@@ -84,12 +83,10 @@ export default function App() {
 
   // Handle keyboard
   function handleKeyDown(e) {
-    console.log(answer)
     if (e.key === "Backspace") {
       setAnswer((prevAnswer) => prevAnswer.substring(0, prevAnswer.length - 1));
     } else if (sideLetterRef.current.includes(e.key) || e.key === centerLetter.current) {
       setAnswer((prevAnswer) => {
-        console.log(prevAnswer)
         return prevAnswer + e.key
       });
     } else if (e.key === "Enter") {
@@ -106,8 +103,6 @@ export default function App() {
     const savedData = JSON.parse(
       localStorage.getItem("eja_lebah_data") ?? "{}",
     );
-    console.log(savedData["create_date"]);
-    console.log(todayDateStr);
     if (savedData["create_date"] == todayDateStr) {
       // Set latest buttons and correct answers with saved data
       centerLetter.current = savedData["key_letter"];
@@ -123,7 +118,6 @@ export default function App() {
         ),
       );
     } else {
-      console.log("fetch");
       fetch("/api/answers")
         .then((response) => response.json())
         .then((fetchedData) => {
