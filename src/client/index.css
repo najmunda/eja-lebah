@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: Roboto;
+  font-optical-sizing: auto;
+  font-weight: 100 900;
+  font-style: normal;
+  font-variation-settings:
+    "wdth" 100;
+  src: url("./assets/Roboto-VariableFont_wdth,wght.ttf") format("ttf");
+}
+
 @theme {
+  --font-roboto: Roboto, sans-serif;
   --animate-fade-in: fade-in 1s ease-in-out;
   --animate-fade-out: fade-out 1s ease-in-out;
   --animate-fade-repeat: fade-repeat 1.5s step-start infinite;
