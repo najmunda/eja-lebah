@@ -25,6 +25,7 @@ export default function App() {
     useState([]);
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState("");
+  const answerInputRef = useRef(null);
 
   function handleSubmittedAnswersListClick() {
     if (message === "") {
@@ -134,6 +135,7 @@ export default function App() {
         });
     }
     setIsLoading(false);
+    answerInputRef.current.focus();
   }, []);
 
   return (
@@ -147,7 +149,7 @@ export default function App() {
             isOpen={isSubmittedAnswersListOpen} 
             handleListClick={handleSubmittedAnswersListClick}
             message={message} />
-          <AnswerInput value={answer} handleKeyDown={handleKeyDown} />
+          <AnswerInput value={answer} ref={answerInputRef} handleKeyDown={handleKeyDown} />
         </div>
         <div className="flex flex-col items-center self-center sm:row-span-2">
           <div className="-mb-4 flex gap-1 justify-center">
