@@ -3,9 +3,10 @@ import { Eraser, SendHorizontal, Shuffle } from "lucide-react";
 import SubmittedAnswersList from "./SubmittedAnswersList";
 import AnswerInput from "./AnswerInput";
 import HexaButton from "./HexaButton";
-import Header from "./Header";
 import ScoreLine from "./ScoreLine";
 import Button from "./Button";
+import { useErrorBoundary } from "react-error-boundary";
+import { delay } from "./utils";
 
 export const AppContext = createContext({ answer: "", isLoading: true });
 
@@ -27,71 +28,100 @@ export default function App() {
   const [message, setMessage] = useState("");
   const answerInputRef = useRef(null);
 
+  const { showBoundary } = useErrorBoundary();
+
   function handleSubmittedAnswersListClick() {
-    if (message === "") {
-      setSubmittedAnswersListIsOpen((prevIsSubmittedAnswersListOpen) => !prevIsSubmittedAnswersListOpen);
+    try {
+      if (message === "") {
+        setSubmittedAnswersListIsOpen((prevIsSubmittedAnswersListOpen) => !prevIsSubmittedAnswersListOpen);
+      }
+    } catch (error) {
+      showBoundary(error);
     }
   }
 
-  function showMessage(message, seconds, callback) {
-    setMessage(message);
-    setTimeout(() => {
-      setMessage("");
-      if (callback) callback();
-    }, seconds * 1000);
-  }
-
   function handleLetterButtonClick(e) {
-    const clickedButtonValue = e.currentTarget.getAttribute("value");
-    setAnswer((prevAnswer) => prevAnswer + clickedButtonValue);
-    setSubmittedAnswersListIsOpen(false);
+    try {
+      const clickedButtonValue = e.currentTarget.getAttribute("value");
+      setAnswer((prevAnswer) => prevAnswer + clickedButtonValue);
+      setSubmittedAnswersListIsOpen(false);
+    } catch (error) {
+      showBoundary(error);
+    }
   }
 
   function handleDeleteButtonClick() {
-    setAnswer((prevAnswer) => prevAnswer.substring(0, prevAnswer.length - 1));
+    try {
+      setAnswer((prevAnswer) => prevAnswer.substring(0, prevAnswer.length - 1));
+    } catch (error) {
+      showBoundary(error);
+    }
   }
 
   function handleShuffleButtonClick() {
-    setSideLetters((prevSideLetters) =>
-      prevSideLetters.toSorted((a, b) => (Math.random() > 0.5 ? 1 : -1)),
-    );
+    try {
+      setSideLetters((prevSideLetters) =>
+        prevSideLetters.toSorted((a, b) => (Math.random() > 0.5 ? 1 : -1)),
+      );
+    } catch (error) {
+      showBoundary(error);
+    }
   }
 
   function handleSubmitButtonClick() {
-    setSubmittedAnswersListIsOpen(false);
-    if (answer.length < 4) {
-      showMessage("Jawaban terlalu pendek...", 1.5);
-    } else if (answer.includes(centerLetter.current) === false) {
-      showMessage("Huruf kunci tidak digunakan...", 1.5);
-    } else if (submittedAnswers.includes(answer)) {
-      showMessage("Jawaban sudah pernah ditebak sebelumnya...", 1.5);
-    } else if (correctAnswers.current.includes(answer) === false) {
-      showMessage("Jawaban salah...", 1.5);
-    } else {
-      showMessage(`Jawaban benar! Kamu mendapat ${answer.length} poin!`, 1.5, () => {setAnswer("");});
-      setSubmittedAnswers((prevSubmittedAnswers: string[]) => {
-        const updatedSubmittedAnswers = [answer, ...prevSubmittedAnswers];
-        const savedData = JSON.parse(
-          localStorage.getItem("eja_lebah_data") ?? "{}",
-        );
-        savedData["submitted_answers"] = updatedSubmittedAnswers;
-        localStorage.setItem("eja_lebah_data", JSON.stringify(savedData));
-        return updatedSubmittedAnswers;
-      });
-      setCurrentScore((prevScore) => prevScore + answer.length);
+    try {
+      setSubmittedAnswersListIsOpen(false);
+      if (answer.length < 4) {
+        showMessage("Jawaban terlalu pendek...", 1.5);
+      } else if (answer.includes(centerLetter.current) === false) {
+        showMessage("Huruf kunci tidak digunakan...", 1.5);
+      } else if (submittedAnswers.includes(answer)) {
+        showMessage("Jawaban sudah pernah ditebak sebelumnya...", 1.5);
+      } else if (correctAnswers.current.includes(answer) === false) {
+        showMessage("Jawaban salah...", 1.5);
+      } else {
+        showMessage(`Jawaban benar! Kamu mendapat ${answer.length} poin!`, 1.5, () => {setAnswer("");});
+        setSubmittedAnswers((prevSubmittedAnswers: string[]) => {
+          const updatedSubmittedAnswers = [answer, ...prevSubmittedAnswers];
+          const savedData = JSON.parse(
+            localStorage.getItem("eja_lebah_data") ?? "{}",
+          );
+          savedData["submitted_answers"] = updatedSubmittedAnswers;
+          localStorage.setItem("eja_lebah_data", JSON.stringify(savedData));
+          return updatedSubmittedAnswers;
+        });
+        setCurrentScore((prevScore) => prevScore + answer.length);
+      }
+    } catch (error) {
+      showBoundary(error);
     }
   }
 
   // Handle keyboard
   function handleKeyDown(e) {
-    if (e.key === "Backspace") {
-      setAnswer((prevAnswer) => prevAnswer.substring(0, prevAnswer.length - 1));
-    } else if (sideLetterRef.current.includes(e.key) || e.key === centerLetter.current) {
-      setAnswer((prevAnswer) => {
-        return prevAnswer + e.key
-      });
-    } else if (e.key === "Enter") {
-      handleSubmitButtonClick();
+    try {
+      if (e.key === "Backspace") {
+        setAnswer((prevAnswer) => prevAnswer.substring(0, prevAnswer.length - 1));
+      } else if (sideLetterRef.current.includes(e.key) || e.key === centerLetter.current) {
+        setAnswer((prevAnswer) => {
+          return prevAnswer + e.key
+        });
+      } else if (e.key === "Enter") {
+        handleSubmitButtonClick();
+      }
+    } catch (error) {
+      showBoundary(error);
+    }
+  }
+
+  async function showMessage(message, seconds, callback) {
+    try {
+      setMessage(message);
+      await delay(seconds * 1000);
+      setMessage("");
+      if (callback) callback();
+    } catch (error) {
+      showBoundary(error);
     }
   }
 
@@ -99,48 +129,54 @@ export default function App() {
     // { key_letter: "a", letters: "bcdefg", words: "["answer1", ...]",
     // word_count: 54, max_score: 102, create_date: "2025-10-15 06:17:15",
     // submitted_answers: "["answer1", ...]" }
-    const todayDate = new Date();
-    const todayDateStr = `${todayDate.getFullYear()}-${todayDate.getMonth() + 1}-${todayDate.getDate()}`;
-    const savedData = JSON.parse(
-      localStorage.getItem("eja_lebah_data") ?? "{}",
-    );
-    if (savedData["create_date"] == todayDateStr) {
-      // Set latest buttons and correct answers with saved data
-      centerLetter.current = savedData["key_letter"];
-      sideLetterRef.current = savedData["letters"];
-      setSideLetters(savedData["letters"].split(""));
-      correctAnswers.current = savedData["words"];
-      maxScore.current = savedData["max_score"];
-      setSubmittedAnswers(savedData["submitted_answers"]);
-      setCurrentScore(
-        savedData["submitted_answers"].reduce(
-          (lengthTotal, answer) => lengthTotal + answer.length,
-          0,
-        ),
-      );
-    } else {
-      fetch("/api/answers")
-        .then((response) => response.json())
-        .then((fetchedData) => {
-          // Set latest buttons and correct answers with fetched data
-          centerLetter.current = fetchedData["key_letter"];
-          sideLetterRef.current = fetchedData["letters"];
-          setSideLetters(fetchedData["letters"].split(""));
-          maxScore.current = fetchedData["max_score"];
-          correctAnswers.current = JSON.parse(fetchedData["words"]);
-          fetchedData["submitted_answers"] = [];
+    async function loadData() {
+      try {
+        const todayDate = new Date();
+        const todayDateStr = `${todayDate.getFullYear()}-${todayDate.getMonth() + 1}-${todayDate.getDate()}`;
+        const savedData = JSON.parse(
+          localStorage.getItem("eja_lebah_data") ?? "{}",
+        );
+        if (savedData["create_date"] == todayDateStr) {
+          // Set latest buttons and correct answers with saved data
+          centerLetter.current = savedData["key_letter"];
+          sideLetterRef.current = savedData["letters"];
+          setSideLetters(savedData["letters"].split(""));
+          correctAnswers.current = savedData["words"];
+          maxScore.current = savedData["max_score"];
+          setSubmittedAnswers(savedData["submitted_answers"]);
+          setCurrentScore(
+            savedData["submitted_answers"].reduce(
+              (lengthTotal, answer) => lengthTotal + answer.length,
+              0,
+            ),
+          );
+        } else {
+          await fetch("/api/answers")
+            .then((response) => response.json())
+            .then((fetchedData) => {
+              // Set latest buttons and correct answers with fetched data
+              centerLetter.current = fetchedData["key_letter"];
+              sideLetterRef.current = fetchedData["letters"];
+              setSideLetters(fetchedData["letters"].split(""));
+              maxScore.current = fetchedData["max_score"];
+              correctAnswers.current = JSON.parse(fetchedData["words"]);
+              fetchedData["submitted_answers"] = [];
 
-          // Save fetched data to localStorage
-          localStorage.setItem("eja_lebah_data", JSON.stringify(fetchedData));
-        });
+              // Save fetched data to localStorage
+              localStorage.setItem("eja_lebah_data", JSON.stringify(fetchedData));
+            })
+        }
+        setIsLoading(false);
+        answerInputRef.current.focus(); 
+      } catch (error) {
+        showBoundary(error);
+      }
     }
-    setIsLoading(false);
-    answerInputRef.current.focus();
+    loadData();
   }, []);
 
   return (
     <AppContext value={{ answer: answer, isLoading: isLoading }}>
-      <Header />
       <main className="px-2 flex-1 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:grid-rows-[repeat(2,_minmax(0,_min-content))] auto-rows-min">
         <div className="flex flex-col gap-4">
           <ScoreLine currentScore={currentScore} maxScore={maxScore.current} />
@@ -203,9 +239,6 @@ export default function App() {
           </Button>
         </div>
       </main>
-      <footer className="p-2 flex justify-center">
-        <p className="text-sm">eja-lebah 2025 | Oleh Najmunda</p>
-      </footer>
     </AppContext>
   );
 }
