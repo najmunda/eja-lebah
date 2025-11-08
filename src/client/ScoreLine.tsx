@@ -1,5 +1,5 @@
-// import { useContext } from "react";
-// import { AppContext } from "./App";
+import { useContext } from "react";
+import { AppContext } from "./App";
 import clsx from "clsx";
 
 function CheckPoint({ minPercentage, currentPercentage }) {
@@ -20,10 +20,10 @@ function Line() {
 }
 
 export default function ScoreLine({ currentScore, maxScore }) {
-  // const { isLoading } = useContext(AppContext);
+  const { isLoading } = useContext(AppContext);
   const currentPercentage = currentScore/maxScore*100;
   return (
-    <section className="h-8 flex items-center">
+    <section className={clsx("h-8 flex items-center", { "animate-pulse": isLoading },)}>
       <div className={clsx("flex-1 flex justify-between items-center relative")}>
         <div 
           style={{width: `${currentPercentage}%`}}
@@ -34,7 +34,7 @@ export default function ScoreLine({ currentScore, maxScore }) {
             "rounded-full size-8 border-2 text-xs flex justify-center items-center border-yellow-300 bg-white absolute z-20",
             {"hidden": currentPercentage === 100}
           )}
-        >{currentScore}</p>
+        >{isLoading ? "" : currentScore}</p>
         <CheckPoint minPercentage={0} currentPercentage={currentPercentage} />
         <Line />
         <CheckPoint minPercentage={25} currentPercentage={currentPercentage} />
@@ -49,7 +49,7 @@ export default function ScoreLine({ currentScore, maxScore }) {
             "rounded-full size-8 border-2 text-xs flex justify-center items-center border-yellow-300 bg-white absolute right-0 z-10",
             {"hidden": currentPercentage === 100}
           )}
-        >{maxScore}</p>
+        >{isLoading ? "" : maxScore}</p>
       </div>
     </section>
   )

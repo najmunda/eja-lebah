@@ -30,7 +30,7 @@ export default function SubmittedAnswersList({
     <ul
       className={clsx(
         "group relative h-fit p-2 flex items-center gap-2 text-sm bg-yellow-200 rounded-lg overflow-hidden",
-        { "animate-fade-repeat": isLoading },
+        { "animate-pulse": isLoading },
         { "flex-wrap pr-10 overflow-visible h-fit": isOpen },
         { "hover:bg-yellow-300 hover:cursor-pointer": message === "" },
         { "justify-center hover:bg-yellow-200": message !== "" },
@@ -54,9 +54,9 @@ export default function SubmittedAnswersList({
               Coba tebak sebuah jawaban...
             </li>
           )}
-          <button className="pt-2 pr-2 bg-inherit absolute top-0 right-0 rounded-lg">
+          {isLoading || <button className="pt-2 pr-2 bg-inherit absolute top-0 right-0 rounded-lg">
             {isOpen ? <ChevronUp /> : <ChevronDown />}
-          </button>
+          </button>}
         </>
       )}
     </ul>
