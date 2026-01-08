@@ -27,11 +27,11 @@ export default function ScoreLine({ currentScore, maxScore }) {
       <div className={clsx("flex-1 flex justify-between items-center relative")}>
         <div 
           style={{width: `${currentPercentage}%`}}
-          className="h-1 bg-yellow-200 absolute"></div>
+          className="h-1 bg-yellow-200 absolute transition-[width] duration-250"></div>
         <p
           style={{left: `${currentPercentage}%`}} 
           className={clsx(
-            "rounded-full size-8 border-2 text-xs flex justify-center items-center border-yellow-300 bg-white absolute z-20",
+            "rounded-full size-8 border-2 text-xs flex justify-center items-center border-yellow-300 bg-white absolute z-20 transition-[left] duration-250",
             {"hidden": currentPercentage === 100}
           )}
         >{isLoading ? "" : currentScore}</p>

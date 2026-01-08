@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, createContext } from "react";
 import { Eraser, SendHorizontal, Shuffle } from "lucide-react";
 import SubmittedAnswersList from "./SubmittedAnswersList";
 import AnswerInput from "./AnswerInput";
-import HexaButton from "./HexaButton";
+import HexaButtons from "./HexaButtons";
 import ScoreLine from "./ScoreLine";
 import Button from "./Button";
 import { useErrorBoundary } from "react-error-boundary";
@@ -68,19 +68,21 @@ export default function App() {
     }
   }
 
-  function handleSubmitButtonClick() {
+  async function handleSubmitButtonClick() {
     try {
       setSubmittedAnswersListIsOpen(false);
       if (answer.length < 4) {
-        showMessage("Jawaban terlalu pendek...", 1.5);
+        await showMessage("Jawaban terlalu pendek...", 1.5);
       } else if (answer.includes(centerLetter.current) === false) {
-        showMessage("Huruf kunci tidak digunakan...", 1.5);
+        await showMessage("Huruf kunci tidak digunakan...", 1.5);
       } else if (submittedAnswers.includes(answer)) {
-        showMessage("Jawaban sudah pernah ditebak sebelumnya...", 1.5);
+        await showMessage("Jawaban sudah pernah ditebak sebelumnya...", 1.5);
       } else if (correctAnswers.current.includes(answer) === false) {
-        showMessage("Jawaban salah...", 1.5);
+        await showMessage("Jawaban salah...", 1.5);
       } else {
-        showMessage(`Jawaban benar! Kamu mendapat ${answer.length} poin!`, 1.5, () => {setAnswer("");});
+        setCurrentScore((prevScore) => prevScore + answer.length);
+        await showMessage(`Jawaban benar! Kamu mendapat ${answer.length} poin!`, 1.5);
+        setAnswer("");
         setSubmittedAnswers((prevSubmittedAnswers: string[]) => {
           const updatedSubmittedAnswers = [answer, ...prevSubmittedAnswers];
           const savedData = JSON.parse(
@@ -90,7 +92,6 @@ export default function App() {
           localStorage.setItem("eja_lebah_data", JSON.stringify(savedData));
           return updatedSubmittedAnswers;
         });
-        setCurrentScore((prevScore) => prevScore + answer.length);
       }
     } catch (error) {
       showBoundary(error);
@@ -114,12 +115,11 @@ export default function App() {
     }
   }
 
-  async function showMessage(message, seconds, callback) {
+  async function showMessage(message, seconds) {
     try {
       setMessage(message);
       await delay(seconds * 1000);
       setMessage("");
-      if (callback) callback();
     } catch (error) {
       showBoundary(error);
     }
@@ -188,41 +188,11 @@ export default function App() {
           <AnswerInput value={answer} ref={answerInputRef} handleKeyDown={handleKeyDown} />
         </div>
         <div className="flex flex-col items-center self-center sm:row-span-2">
-          <div className="-mb-4 flex gap-1 justify-center">
-            <HexaButton
-              letter={sideLetters[0]}
-              handleClick={handleLetterButtonClick}
-            />
-            <HexaButton
-              letter={sideLetters[1]}
-              handleClick={handleLetterButtonClick}
-            />
-          </div>
-          <div className="flex gap-1 justify-center">
-            <HexaButton
-              letter={sideLetters[2]}
-              handleClick={handleLetterButtonClick}
-            />
-            <HexaButton
-              letter={centerLetter.current}
-              handleClick={handleLetterButtonClick}
-              isCenter={true}
-            />
-            <HexaButton
-              letter={sideLetters[3]}
-              handleClick={handleLetterButtonClick}
-            />
-          </div>
-          <div className="-mt-4 flex gap-1 justify-center">
-            <HexaButton
-              letter={sideLetters[4]}
-              handleClick={handleLetterButtonClick}
-            />
-            <HexaButton
-              letter={sideLetters[5]}
-              handleClick={handleLetterButtonClick}
-            />
-          </div>
+          <HexaButtons 
+            centerLetter={centerLetter.current} 
+            sideLetters={sideLetters} 
+            handleButtonClick={handleLetterButtonClick}
+          />
         </div>
         <div className="h-fit flex justify-center gap-2">
           <Button handleClick={handleDeleteButtonClick}>
