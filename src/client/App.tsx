@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, createContext } from "react";
-import { Eraser, SendHorizontal, Shuffle } from "lucide-react";
+import { Eraser, SendHorizontal, Shuffle, Smile } from "lucide-react";
 import SubmittedAnswersList from "./SubmittedAnswersList";
 import AnswerInput from "./AnswerInput";
 import HexaButtons from "./HexaButtons";
@@ -22,7 +22,7 @@ export default function App() {
   const [sideLetters, setSideLetters] = useState(new Array(6).fill(""));
   const correctAnswers = useRef([]);
   const [currentScore, setCurrentScore] = useState(0);
-  const maxScore = useRef(0);
+  const maxScore = useRef(1);
   const [submittedAnswers, setSubmittedAnswers]: [string[], Function] =
     useState([]);
   const [answer, setAnswer] = useState("");
@@ -181,7 +181,7 @@ export default function App() {
             });
         }
         setIsLoading(false);
-        answerInputRef.current.focus();
+        if (answerInputRef.current) answerInputRef.current.focus();
       } catch (error) {
         showBoundary(error);
       }
@@ -189,9 +189,9 @@ export default function App() {
     loadData();
   }, []);
 
-  return (
+  return currentScore < maxScore.current ? (
     <AppContext value={{ answer: answer, isLoading: isLoading }}>
-      <main className="px-2 flex-1 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:grid-rows-[repeat(2,_minmax(0,_min-content))] auto-rows-min">
+      <main className="px-2 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:grid-rows-[repeat(2,_minmax(0,_min-content))] auto-rows-min">
         <div className="flex flex-col gap-4">
           <ScoreLine currentScore={currentScore} maxScore={maxScore.current} />
           <SubmittedAnswersList
@@ -229,5 +229,14 @@ export default function App() {
         </div>
       </main>
     </AppContext>
+  ) : (
+    <main className="px-2 flex-1 flex flex-col items-center justify-center text-center gap-4">
+      <Smile size={100} />
+      <p className="text-4xl">Selamat!</p>
+      <p>
+        Anda berhasil menyelesaikan kuis hari ini! <br />
+        Datang kembali besok!
+      </p>
+    </main>
   );
 }
