@@ -16,13 +16,7 @@ const credentials = { key: privateKey, cert: certificate };
 app.use(cors());
 
 // Job for update letter on start of day
-new CronJob(
-  "0 0 0 * * *",
-  updateLettersAndAnswers,
-  null,
-  true,
-  "Asia/Jakarta",
-);
+new CronJob("0 0 0 * * *", updateLettersAndAnswers, null, true, "Asia/Jakarta");
 
 const selectLastLettersStatement = db.prepare(`
   SELECT key_letter, letters, words, word_count, max_score, create_date FROM Letter ORDER BY id DESC LIMIT 1;

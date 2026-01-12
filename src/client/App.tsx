@@ -14,7 +14,8 @@ export default function App() {
   // State
   const [isLoading, setIsLoading] = useState(true);
 
-  const [isSubmittedAnswersListOpen, setSubmittedAnswersListIsOpen] = useState(false);
+  const [isSubmittedAnswersListOpen, setSubmittedAnswersListIsOpen] =
+    useState(false);
 
   const centerLetter = useRef("a");
   const sideLetterRef = useRef("aaaaaa");
@@ -33,7 +34,9 @@ export default function App() {
   function handleSubmittedAnswersListClick() {
     try {
       if (message === "") {
-        setSubmittedAnswersListIsOpen((prevIsSubmittedAnswersListOpen) => !prevIsSubmittedAnswersListOpen);
+        setSubmittedAnswersListIsOpen(
+          (prevIsSubmittedAnswersListOpen) => !prevIsSubmittedAnswersListOpen,
+        );
       }
     } catch (error) {
       showBoundary(error);
@@ -81,7 +84,10 @@ export default function App() {
         await showMessage("Jawaban salah...", 1.5);
       } else {
         setCurrentScore((prevScore) => prevScore + answer.length);
-        await showMessage(`Jawaban benar! Kamu mendapat ${answer.length} poin!`, 1.5);
+        await showMessage(
+          `Jawaban benar! Kamu mendapat ${answer.length} poin!`,
+          1.5,
+        );
         setAnswer("");
         setSubmittedAnswers((prevSubmittedAnswers: string[]) => {
           const updatedSubmittedAnswers = [answer, ...prevSubmittedAnswers];
@@ -102,10 +108,15 @@ export default function App() {
   function handleKeyDown(e) {
     try {
       if (e.key === "Backspace") {
-        setAnswer((prevAnswer) => prevAnswer.substring(0, prevAnswer.length - 1));
-      } else if (sideLetterRef.current.includes(e.key) || e.key === centerLetter.current) {
+        setAnswer((prevAnswer) =>
+          prevAnswer.substring(0, prevAnswer.length - 1),
+        );
+      } else if (
+        sideLetterRef.current.includes(e.key) ||
+        e.key === centerLetter.current
+      ) {
         setAnswer((prevAnswer) => {
-          return prevAnswer + e.key
+          return prevAnswer + e.key;
         });
       } else if (e.key === "Enter") {
         handleSubmitButtonClick();
@@ -163,11 +174,14 @@ export default function App() {
               fetchedData["submitted_answers"] = [];
 
               // Save fetched data to localStorage
-              localStorage.setItem("eja_lebah_data", JSON.stringify(fetchedData));
-            })
+              localStorage.setItem(
+                "eja_lebah_data",
+                JSON.stringify(fetchedData),
+              );
+            });
         }
         setIsLoading(false);
-        answerInputRef.current.focus(); 
+        answerInputRef.current.focus();
       } catch (error) {
         showBoundary(error);
       }
@@ -180,17 +194,22 @@ export default function App() {
       <main className="px-2 flex-1 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:grid-rows-[repeat(2,_minmax(0,_min-content))] auto-rows-min">
         <div className="flex flex-col gap-4">
           <ScoreLine currentScore={currentScore} maxScore={maxScore.current} />
-          <SubmittedAnswersList 
-            submittedAnswers={submittedAnswers} 
-            isOpen={isSubmittedAnswersListOpen} 
+          <SubmittedAnswersList
+            submittedAnswers={submittedAnswers}
+            isOpen={isSubmittedAnswersListOpen}
             handleListClick={handleSubmittedAnswersListClick}
-            message={message} />
-          <AnswerInput value={answer} ref={answerInputRef} handleKeyDown={handleKeyDown} />
+            message={message}
+          />
+          <AnswerInput
+            value={answer}
+            ref={answerInputRef}
+            handleKeyDown={handleKeyDown}
+          />
         </div>
         <div className="flex flex-col items-center self-center sm:row-span-2">
-          <HexaButtons 
-            centerLetter={centerLetter.current} 
-            sideLetters={sideLetters} 
+          <HexaButtons
+            centerLetter={centerLetter.current}
+            sideLetters={sideLetters}
             handleButtonClick={handleLetterButtonClick}
           />
         </div>

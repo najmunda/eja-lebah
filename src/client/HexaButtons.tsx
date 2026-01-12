@@ -37,25 +37,28 @@ function HexaButton({
       disabled={isLoading}
     >
       <AnimatePresence initial={false}>
-        {isLoading || 
+        {isLoading || (
           <motion.p
-            key={key} 
+            key={key}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1, transition: { delay: 0.25 } }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }} 
+            transition={{ duration: 0.25 }}
             className="absolute"
           >
             {letter.toUpperCase()}
           </motion.p>
-        }
+        )}
       </AnimatePresence>
     </button>
   );
 }
 
-export default function HexaButtons({centerLetter, sideLetters, handleButtonClick}) {
-  
+export default function HexaButtons({
+  centerLetter,
+  sideLetters,
+  handleButtonClick,
+}) {
   return (
     <>
       <div className="-mb-4 flex gap-1 justify-center">
@@ -101,5 +104,5 @@ export default function HexaButtons({centerLetter, sideLetters, handleButtonClic
         />
       </div>
     </>
-  )
+  );
 }
