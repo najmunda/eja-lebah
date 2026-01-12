@@ -1,29 +1,29 @@
 import db from "./db.js";
 
+const whereClause = `
+  WHERE 
+    length(word) >= 4 -- Answer min length
+    AND regexp('^[a-z]+$', word) = 1 -- Only contains alphabet
+    AND instr(word, ?) > 0 -- Must contain key letter
+    AND regexp(?, word) = 1
+`;
+
 const getWordCountStatement = db.prepare(`
-    SELECT COUNT(word) AS word_count
-    FROM Word 
-    WHERE 
-        length(word) >= 4 -- Answer min length
-        AND regexp('^[a-z]+$', word) = 1 -- Only contains alphabet
-        AND instr(word, ?) > 0 -- Must contain key letter
-        AND regexp(?, word) = 1
-    ;
+  SELECT COUNT(DISTINCT word) AS word_count
+  FROM Word 
+  ${whereClause}
+  ;
 `);
 
 const getWordsStatement = db.prepare(`
-    SELECT word
-    FROM Word 
-    WHERE 
-        length(word) >= 4 -- Answer min length
-        AND regexp('^[a-z]+$', word) = 1 -- Only contains alphabet
-        AND instr(word, ?) > 0 -- Must contain key letter
-        AND regexp(?, word) = 1
-    ;
+  SELECT DISTINCT word
+  FROM Word 
+  ${whereClause}
+  ;
 `);
 
 const insertLettersStatement = db.prepare(`
-    INSERT INTO Letter (key_letter, letters, words, word_count, max_score) VALUES (?, ?, ?, ?, ?);
+  INSERT INTO Letter (key_letter, letters, words, word_count, max_score) VALUES (?, ?, ?, ?, ?);
 `);
 
 function getRandomLetters() {
