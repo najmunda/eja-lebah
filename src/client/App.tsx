@@ -7,6 +7,7 @@ import ScoreLine from "./ScoreLine";
 import Button from "./Button";
 import { useErrorBoundary } from "react-error-boundary";
 import { delay } from "./utils";
+import { countWordScore } from "../utils";
 
 export const AppContext = createContext({ answer: "", isLoading: true });
 
@@ -23,8 +24,7 @@ export default function App() {
   const correctAnswers = useRef([]);
   const [currentScore, setCurrentScore] = useState(0);
   const maxScore = useRef(1);
-  const [submittedAnswers, setSubmittedAnswers]: [string[], Function] =
-    useState([]);
+  const [submittedAnswers, setSubmittedAnswers] = useState([]);
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState("");
   const answerInputRef = useRef(null);
@@ -64,7 +64,7 @@ export default function App() {
   function handleShuffleButtonClick() {
     try {
       setSideLetters((prevSideLetters) =>
-        prevSideLetters.toSorted((a, b) => (Math.random() > 0.5 ? 1 : -1)),
+        prevSideLetters.toSorted(() => (Math.random() > 0.5 ? 1 : -1)),
       );
     } catch (error) {
       showBoundary(error);
@@ -83,7 +83,7 @@ export default function App() {
       } else if (correctAnswers.current.includes(answer) === false) {
         await showMessage("Jawaban salah...", 1.5);
       } else {
-        setCurrentScore((prevScore) => prevScore + answer.length);
+        setCurrentScore((prevScore) => prevScore + countWordScore(answer));
         await showMessage(
           `Jawaban benar! Kamu mendapat ${answer.length} poin!`,
           1.5,

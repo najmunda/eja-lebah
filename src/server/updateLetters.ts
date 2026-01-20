@@ -1,3 +1,4 @@
+import { countWordScore } from "../utils.js";
 import db from "./db.js";
 
 const whereClause = `
@@ -75,7 +76,7 @@ export default function updateLettersAndAnswers() {
     .map((row) => row.word);
   const wordsJSON = JSON.stringify(words);
   const maxScore = words.reduce(
-    (totalLength, word) => totalLength + word.length,
+    (currScore, word) => currScore + countWordScore(word),
     0,
   );
   insertLettersStatement.run(
