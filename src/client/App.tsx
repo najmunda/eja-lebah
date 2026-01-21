@@ -189,54 +189,92 @@ export default function App() {
     loadData();
   }, []);
 
-  return currentScore < maxScore.current ? (
-    <AppContext value={{ answer: answer, isLoading: isLoading }}>
-      <main className="px-2 flex flex-col gap-4 sm:grid sm:grid-cols-2 sm:grid-rows-[repeat(2,_minmax(0,_min-content))] auto-rows-min">
-        <div className="flex flex-col gap-4">
-          <ScoreLine currentScore={currentScore} maxScore={maxScore.current} />
-          <SubmittedAnswersList
-            submittedAnswers={submittedAnswers}
-            isOpen={isSubmittedAnswersListOpen}
-            handleListClick={handleSubmittedAnswersListClick}
-            message={message}
-          />
-          <AnswerInput
-            value={answer}
-            ref={answerInputRef}
-            handleKeyDown={handleKeyDown}
-          />
+  return (
+    <main className="flex flex-col gap-[inherit]">
+      {currentScore < maxScore.current ? (
+        <AppContext value={{ answer: answer, isLoading: isLoading }}>
+          <section className="h-[85dvh] px-2 flex flex-col items-center gap-8">
+            <div className="flex flex-col gap-4">
+              <ScoreLine
+                currentScore={currentScore}
+                maxScore={maxScore.current}
+              />
+              <SubmittedAnswersList
+                submittedAnswers={submittedAnswers}
+                isOpen={isSubmittedAnswersListOpen}
+                handleListClick={handleSubmittedAnswersListClick}
+                message={message}
+              />
+              <AnswerInput
+                value={answer}
+                ref={answerInputRef}
+                handleKeyDown={handleKeyDown}
+              />
+            </div>
+            <div className="flex flex-col items-center self-center">
+              <HexaButtons
+                centerLetter={centerLetter.current}
+                sideLetters={sideLetters}
+                handleButtonClick={handleLetterButtonClick}
+              />
+            </div>
+            <div className="h-fit flex justify-center gap-2">
+              <Button handleClick={handleDeleteButtonClick}>
+                <Eraser size={18} />
+                Hapus
+              </Button>
+              <Button handleClick={handleShuffleButtonClick}>
+                <Shuffle size={18} />
+                Acak
+              </Button>
+              <Button handleClick={handleSubmitButtonClick}>
+                <SendHorizontal size={18} />
+                Submit
+              </Button>
+            </div>
+          </section>
+        </AppContext>
+      ) : (
+        <section className="px-2 flex-1 flex flex-col items-center justify-center text-center gap-4">
+          <Smile size={100} />
+          <p className="text-4xl">Selamat!</p>
+          <p>
+            Anda berhasil menyelesaikan kuis hari ini! <br />
+            Datang kembali besok!
+          </p>
+        </section>
+      )}
+      <section className="px-2 flex items-stretch gap-[inherit]">
+        <div className="p-2 text-center gap-2 bg-yellow-200 rounded-lg">
+          <h2 className="text-2xl font-bold">Cara Bermain</h2>
+          <p>
+            Cari kata sebanyak-banyaknya! Kata terdiri dari 4 atau lebih huruf,
+            terdiri dari huruf yang ada di layar, dan harus memuat huruf kunci
+            (berada di tengah kumpulan huruf)!
+          </p>
+          <p>
+            Kata dengan 4 huruf bernilai 1 poin, dan kata dengan lebih dari 4
+            huruf bernilai sama dengan jumlah huruf. Jika kamu dapat menggunakan
+            seluruh huruf dalam 1 jawaban kamu akan mendapatkan 7 poin tambahan!
+          </p>
+          <p>
+            Input jawaban menggunakan keyboard, atau dengan menekan tombol huruf
+            di layar.
+          </p>
         </div>
-        <div className="flex flex-col items-center self-center sm:row-span-2">
-          <HexaButtons
-            centerLetter={centerLetter.current}
-            sideLetters={sideLetters}
-            handleButtonClick={handleLetterButtonClick}
-          />
+        <div className="p-2 text-center gap-2 bg-yellow-200 rounded-lg">
+          <h2 className="text-2xl font-bold">Tentang Gim</h2>
+          <p>
+            Gim dibuat terinspirasi spelling bee dari New York Times, karena
+            saya tidak mempunyai list kata Bahasa Inggris yang kaya dan tidak
+            bisa mendapat poin tinggi.
+          </p>
+          <p>
+            List kata didapat dari Wiktionary, mungkin jawaban yang kamu ketik
+            tidak ditemukan atau baku.
+          </p>
         </div>
-        <div className="h-fit flex justify-center gap-2">
-          <Button handleClick={handleDeleteButtonClick}>
-            <Eraser size={18} />
-            Hapus
-          </Button>
-          <Button handleClick={handleShuffleButtonClick}>
-            <Shuffle size={18} />
-            Acak
-          </Button>
-          <Button handleClick={handleSubmitButtonClick}>
-            <SendHorizontal size={18} />
-            Submit
-          </Button>
-        </div>
-      </main>
-    </AppContext>
-  ) : (
-    <main className="px-2 flex-1 flex flex-col items-center justify-center text-center gap-4">
-      <Smile size={100} />
-      <p className="text-4xl">Selamat!</p>
-      <p>
-        Anda berhasil menyelesaikan kuis hari ini! <br />
-        Datang kembali besok!
-      </p>
+      </section>
     </main>
   );
 }
