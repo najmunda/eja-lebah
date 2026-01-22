@@ -8,6 +8,7 @@ import App from "./App";
 import { ErrorBoundary } from "react-error-boundary";
 import Fallback from "./Fallback";
 import Header from "./Header";
+import Footer from "./Footer";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
@@ -15,8 +16,6 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <ErrorBoundary FallbackComponent={Fallback}>
       <App />
     </ErrorBoundary>
-    <footer className="p-2 flex justify-center">
-      <p className="text-sm">eja-lebah 2025 | Oleh Najmunda</p>
-    </footer>
+    <Footer />
   </React.StrictMode>,
 );
