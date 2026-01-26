@@ -27,7 +27,6 @@ export default function App() {
   const [submittedAnswers, setSubmittedAnswers] = useState([]);
   const [answer, setAnswer] = useState("");
   const [message, setMessage] = useState("");
-  const answerInputRef = useRef(null);
 
   const { showBoundary } = useErrorBoundary();
 
@@ -71,7 +70,8 @@ export default function App() {
     }
   }
 
-  async function handleSubmitButtonClick() {
+  async function handleSubmitAnswer(e) {
+    e.preventDefault();
     try {
       setSubmittedAnswersListIsOpen(false);
       if (answer.length < 4) {
@@ -105,22 +105,19 @@ export default function App() {
   }
 
   // Handle keyboard
-  function handleKeyDown(e) {
+  function handleAnswerInputChange(e) {
     try {
-      if (e.key === "Backspace") {
-        setAnswer((prevAnswer) =>
-          prevAnswer.substring(0, prevAnswer.length - 1),
-        );
-      } else if (
-        sideLetterRef.current.includes(e.key) ||
-        e.key === centerLetter.current
-      ) {
-        setAnswer((prevAnswer) => {
-          return prevAnswer + e.key;
-        });
-      } else if (e.key === "Enter") {
-        handleSubmitButtonClick();
-      }
+      const nextAnswer = e.currentTarget.value.toLowerCase();
+      const lastLetter = nextAnswer.at(-1);
+      setAnswer((prevAnswer) => {
+        if (
+          prevAnswer.length > nextAnswer.length ||
+          sideLetterRef.current.includes(lastLetter) ||
+          lastLetter === centerLetter.current
+        )
+          return nextAnswer;
+        else return prevAnswer;
+      });
     } catch (error) {
       showBoundary(error);
     }
@@ -181,7 +178,6 @@ export default function App() {
             });
         }
         setIsLoading(false);
-        if (answerInputRef.current) answerInputRef.current.focus();
       } catch (error) {
         showBoundary(error);
       }
@@ -207,8 +203,8 @@ export default function App() {
               />
               <AnswerInput
                 value={answer}
-                ref={answerInputRef}
-                handleKeyDown={handleKeyDown}
+                handleAnswerInputChange={handleAnswerInputChange}
+                handleSubmit={handleSubmitAnswer}
               />
             </div>
             <div className="flex flex-col items-center self-center">
@@ -219,15 +215,15 @@ export default function App() {
               />
             </div>
             <div className="h-fit flex justify-center gap-2">
-              <Button handleClick={handleDeleteButtonClick}>
+              <Button type="button" onClick={handleDeleteButtonClick}>
                 <Eraser size={18} />
                 Hapus
               </Button>
-              <Button handleClick={handleShuffleButtonClick}>
+              <Button type="button" onClick={handleShuffleButtonClick}>
                 <Shuffle size={18} />
                 Acak
               </Button>
-              <Button handleClick={handleSubmitButtonClick}>
+              <Button type="submit" form="answer-form">
                 <SendHorizontal size={18} />
                 Submit
               </Button>
