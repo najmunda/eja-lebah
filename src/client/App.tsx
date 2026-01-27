@@ -189,8 +189,8 @@ export default function App() {
     <main className="flex flex-col gap-[inherit]">
       {currentScore < maxScore.current ? (
         <AppContext value={{ answer: answer, isLoading: isLoading }}>
-          <section className="h-[85dvh] px-2 flex flex-col items-center gap-8">
-            <div className="flex flex-col gap-4">
+          <section className="px-2 flex flex-col items-center gap-8">
+            <div className="w-full min-w-sm max-w-sm flex flex-col items-stretch gap-4">
               <ScoreLine
                 currentScore={currentScore}
                 maxScore={maxScore.current}
@@ -240,32 +240,33 @@ export default function App() {
           </p>
         </section>
       )}
-      <section className="px-2 flex items-stretch gap-[inherit]">
-        <div className="p-2 text-center gap-2 bg-yellow-200 rounded-lg">
+      <br />
+      <section className="px-2 flex flex-col items-stretch gap-[inherit]">
+        <div className="p-2 text-center gap-3 bg-yellow-200 rounded-lg">
           <h2 className="text-2xl font-bold">Cara Bermain</h2>
-          <p>
+          <p className="text-sm font-light">
             Cari kata sebanyak-banyaknya! Kata terdiri dari 4 atau lebih huruf,
             terdiri dari huruf yang ada di layar, dan harus memuat huruf kunci
             (berada di tengah kumpulan huruf)!
           </p>
-          <p>
+          <p className="text-sm font-light">
             Kata dengan 4 huruf bernilai 1 poin, dan kata dengan lebih dari 4
             huruf bernilai sama dengan jumlah huruf. Jika kamu dapat menggunakan
             seluruh huruf dalam 1 jawaban kamu akan mendapatkan 7 poin tambahan!
           </p>
-          <p>
+          <p className="text-sm font-light">
             Input jawaban menggunakan keyboard, atau dengan menekan tombol huruf
             di layar.
           </p>
         </div>
-        <div className="p-2 text-center gap-2 bg-yellow-200 rounded-lg">
+        <div className="p-2 text-center gap-3 bg-yellow-200 rounded-lg">
           <h2 className="text-2xl font-bold">Tentang Gim</h2>
-          <p>
+          <p className="text-sm font-light">
             Gim dibuat terinspirasi spelling bee dari New York Times, karena
             saya tidak mempunyai list kata Bahasa Inggris yang kaya dan tidak
             bisa mendapat poin tinggi.
           </p>
-          <p>
+          <p className="text-sm font-light">
             List kata didapat dari Wiktionary, mungkin jawaban yang kamu ketik
             tidak ditemukan atau baku.
           </p>

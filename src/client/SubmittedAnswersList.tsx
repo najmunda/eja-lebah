@@ -42,7 +42,7 @@ export default function SubmittedAnswersList({
     <section className="relative">
       <ul
         ref={ghostRef}
-        className="opacity-0 absolute top-0 p-2 items-center flex-wrap gap-2 text-sm pr-10 overflow-visible"
+        className="opacity-0 absolute top-0 p-2 flex content-start flex-wrap gap-2 text-sm pr-10 overflow-visible"
       >
         {renderedSubmittedAnswers.map((answer, index) => (
           <li key={`ghost-${index}`}>{answer}</li>
@@ -59,7 +59,7 @@ export default function SubmittedAnswersList({
       <ul
         style={{ height: isOpen ? height : 36 }}
         className={clsx(
-          "group relative w-full p-2 flex gap-2 text-sm bg-yellow-200 rounded-lg overflow-hidden transition-[background-color,_height] duration-250",
+          "group relative w-full p-2 flex gap-2 content-start text-sm bg-yellow-200 rounded-lg overflow-hidden transition-[background-color,_height] duration-250",
           { "animate-pulse": isLoading },
           { "flex-wrap pr-10 overflow-visible": isOpen },
           { "hover:bg-yellow-300 hover:cursor-pointer": message === "" },
