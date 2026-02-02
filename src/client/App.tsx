@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, createContext } from "react";
-import { Eraser, SendHorizontal, Shuffle, Smile } from "lucide-react";
+import { Eraser, SendHorizontal, Share2, Shuffle, Smile } from "lucide-react";
 import SubmittedAnswersList from "./SubmittedAnswersList";
 import AnswerInput from "./AnswerInput";
 import HexaButtons from "./HexaButtons";
@@ -123,6 +123,26 @@ export default function App() {
     }
   }
 
+  async function handleShareButtonClick() {
+    try {
+      const upperSideLetter = sideLetterRef.current.toUpperCase();
+      const str = `Saya dapat menyusun ${submittedAnswers.length} kata dari huruf\n\n|  ${upperSideLetter[0]} ${upperSideLetter[1]}  |\n| ${upperSideLetter[2]} ${centerLetter.current.toUpperCase()} ${upperSideLetter[3]} |\n|  ${upperSideLetter[4]} ${upperSideLetter[5]}  |\n\nKamu?\n\n`;
+      const shareData = {
+        title: "Hasil Eja Lebahku",
+        text: str,
+        url: "",
+      };
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(str);
+        await showMessage("Hasil prestasimu sudah disalin!", 1.5);
+      }
+    } catch (error) {
+      showBoundary(error);
+    }
+  }
+
   async function showMessage(message, seconds) {
     try {
       setMessage(message);
@@ -214,19 +234,27 @@ export default function App() {
                 handleButtonClick={handleLetterButtonClick}
               />
             </div>
-            <div className="h-fit flex justify-center gap-2">
-              <Button type="button" onClick={handleDeleteButtonClick}>
-                <Eraser size={18} />
-                Hapus
-              </Button>
-              <Button type="button" onClick={handleShuffleButtonClick}>
-                <Shuffle size={18} />
-                Acak
-              </Button>
-              <Button type="submit" form="answer-form">
-                <SendHorizontal size={18} />
-                Submit
-              </Button>
+            <div className="h-fit flex flex-col justify-center items-center gap-2">
+              <div className="h-fit flex justify-center gap-2">
+                <Button type="button" onClick={handleDeleteButtonClick}>
+                  <Eraser size={18} />
+                  Hapus
+                </Button>
+                <Button type="button" onClick={handleShuffleButtonClick}>
+                  <Shuffle size={18} />
+                  Acak
+                </Button>
+                <Button type="submit" form="answer-form">
+                  <SendHorizontal size={18} />
+                  Submit
+                </Button>
+              </div>
+              <div className="h-fit flex justify-center gap-2">
+                <Button type="button" onClick={handleShareButtonClick}>
+                  <Share2 size={18} />
+                  Pamerkan Hasil
+                </Button>
+              </div>
             </div>
           </section>
         </AppContext>
