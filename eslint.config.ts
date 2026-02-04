@@ -11,4 +11,11 @@ export default defineConfig([
   pluginReact.configs.flat.recommended,
   pluginReact.configs.flat['jsx-runtime'],
   eslintConfigPrettier,
+  {
+    settings: {
+      react: {
+        version: "detect",
+      },
+    },
+  },
 ]);
