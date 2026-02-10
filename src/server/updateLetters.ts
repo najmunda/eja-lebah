@@ -1,4 +1,5 @@
-import { countWordScore, getRandomInt } from "../utils.js";
+import { countWordScore } from "../utils.js";
+import { getRandomInt } from "./utils.js";
 import db from "./db.js";
 
 const selectWordsStatement = db.prepare(`
@@ -12,17 +13,25 @@ const selectWordsStatement = db.prepare(`
   ;
 `);
 
-const insertLettersStatement = db.prepare(`
-  INSERT INTO Letter (key_letter, letters, words, word_count, max_score) VALUES (?, ?, ?, ?, ?);
+export const selectLastLetterStatement = db.prepare(`
+  SELECT key_letter, letters, words, word_count, max_score, create_date FROM Letter ORDER BY id DESC LIMIT 1;
+`);
+
+export const selectLetterByCreateDateStatement = db.prepare(`
+  SELECT key_letter, letters, words, word_count, max_score, create_date FROM Letter WHERE create_date = ?;
 `);
 
 const selectLastLetterIdStatement = db.prepare(
   `SELECT seq FROM sqlite_sequence WHERE name = 'Letter';`,
 );
 
+const insertLettersStatement = db.prepare(`
+  INSERT INTO Letter (key_letter, letters, words, word_count, max_score, create_date) VALUES (?, ?, ?, ?, ?, ?);
+`);
+
 const insertPrevLetterStatement = db.prepare(`
-  INSERT INTO Letter (key_letter, letters, words, word_count, max_score)
-  SELECT key_letter, letters, words, word_count, max_score FROM Letter WHERE id = ?;
+  INSERT INTO Letter (key_letter, letters, words, word_count, max_score, create_date)
+  SELECT key_letter, letters, words, word_count, max_score, ? AS create_date FROM Letter WHERE id = ?;
 `);
 
 function getRandomLetters() {
@@ -60,7 +69,7 @@ function getRandomLetters() {
   return { keyLetter, otherLetters, words };
 }
 
-export default function updateLettersAndAnswers() {
+export default function updateLettersAndAnswers(createDate: string) {
   const ANSWER_TOTAL_MIN = 10;
   const LOOP_LIMIT = 100;
   let words = [];
@@ -86,10 +95,11 @@ export default function updateLettersAndAnswers() {
       wordsJSON,
       words.length,
       maxScore,
+      createDate,
     );
   } else {
     const { seq: lastLetterId } = selectLastLetterIdStatement.get();
     const randomId = getRandomInt(1, lastLetterId - 1);
-    insertPrevLetterStatement.run(randomId);
+    insertPrevLetterStatement.run(createDate, randomId);
   }
 }

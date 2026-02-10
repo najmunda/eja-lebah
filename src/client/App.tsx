@@ -6,7 +6,7 @@ import HexaButtons from "./HexaButtons";
 import ScoreLine from "./ScoreLine";
 import Button from "./Button";
 import { useErrorBoundary } from "react-error-boundary";
-import { delay } from "./utils";
+import { delay, getClientTodayDate } from "./utils";
 import { countWordScore } from "../utils";
 
 export const AppContext = createContext({ answer: "", isLoading: true });
@@ -159,8 +159,7 @@ export default function App() {
     // submitted_answers: "["answer1", ...]" }
     async function loadData() {
       try {
-        const todayDate = new Date();
-        const todayDateStr = `${todayDate.getFullYear()}-${todayDate.getMonth() + 1}-${todayDate.getDate()}`;
+        const todayDateStr = getClientTodayDate();
         const savedData = JSON.parse(
           localStorage.getItem("eja_lebah_data") ?? "{}",
         );
@@ -179,7 +178,7 @@ export default function App() {
             ),
           );
         } else {
-          await fetch("/api/answers")
+          await fetch(`/api/answer/${todayDateStr}`)
             .then((response) => response.json())
             .then((fetchedData) => {
               // Set latest buttons and correct answers with fetched data

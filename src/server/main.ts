@@ -2,10 +2,13 @@ import express from "express";
 import fs from "fs";
 import https from "https";
 import cors from "cors";
-import db from "./db.js";
 import { CronJob } from "cron";
-import updateLettersAndAnswers from "./updateLetters.js";
+import updateLettersAndAnswers, {
+  selectLastLetterStatement,
+  selectLetterByCreateDateStatement,
+} from "./updateLetters.js";
 import ViteExpress from "vite-express";
+import { getJakartaNextTwoDayDate } from "./utils.js";
 
 const app = express();
 
@@ -16,17 +19,27 @@ const credentials = { key: privateKey, cert: certificate };
 app.use(cors());
 
 // Job for update letter on start of day
-new CronJob("0 0 0 * * *", updateLettersAndAnswers, null, true, "Asia/Jakarta");
+function dailyJob() {
+  const { create_date: lastLetterDate } = selectLastLetterStatement.get() ?? {
+    create_date: null,
+  };
+  const jakartaNextTwoDayDate = getJakartaNextTwoDayDate();
+  if (jakartaNextTwoDayDate === lastLetterDate) return;
+  updateLettersAndAnswers(jakartaNextTwoDayDate);
+}
 
-const selectLastLettersStatement = db.prepare(`
-  SELECT key_letter, letters, words, word_count, max_score, create_date FROM Letter ORDER BY id DESC LIMIT 1;
-`);
+new CronJob("0 0 0 * * *", dailyJob, null, true, "Asia/Jakarta", null, true);
 
 // Routes
 
-app.get("/api/answers", (req, res) => {
-  const todayLettersAndAnswers = selectLastLettersStatement.get();
-  res.status(200).json(todayLettersAndAnswers);
+app.get("/api/answer/:date", (req, res) => {
+  const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+  const userTodayDate = req.params["date"];
+  if (dateRegex.test(userTodayDate)) {
+    const todayLettersAndAnswers =
+      selectLetterByCreateDateStatement.get(userTodayDate);
+    res.status(200).json(todayLettersAndAnswers);
+  }
 });
 
 app.get("/api", (req, res) => {
