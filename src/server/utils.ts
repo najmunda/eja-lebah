@@ -1,9 +1,9 @@
-export function getJakartaNextTwoDayDate(): string {
+export function getJakartaDate(dayFromToday: number = 0): string {
   const options = {
     timeZone: "Asia/Jakarta",
   };
   const date = new Date(new Date().toLocaleDateString("en-US", options));
-  date.setDate(date.getDate() + 2);
+  date.setDate(date.getDate() + dayFromToday);
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();

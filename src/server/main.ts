@@ -8,7 +8,7 @@ import updateLettersAndAnswers, {
   selectLetterByCreateDateStatement,
 } from "./updateLetters.js";
 import ViteExpress from "vite-express";
-import { getJakartaNextTwoDayDate } from "./utils.js";
+import { getJakartaDate } from "./utils.js";
 
 const app = express();
 
@@ -23,7 +23,7 @@ function dailyJob() {
   const { create_date: lastLetterDate } = selectLastLetterStatement.get() ?? {
     create_date: null,
   };
-  const jakartaNextTwoDayDate = getJakartaNextTwoDayDate();
+  const jakartaNextTwoDayDate = getJakartaDate(2);
   if (jakartaNextTwoDayDate === lastLetterDate) return;
   updateLettersAndAnswers(jakartaNextTwoDayDate);
 }
