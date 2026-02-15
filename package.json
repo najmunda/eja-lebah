@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "initdb": "nodemon -x tsx src/db/initDb.ts",
+    "seed": "nodemon -x tsx src/db/seed.ts",
     "dev": "nodemon -w src/server -x tsx src/server/main.ts",
     "tes": "vite-express",
     "start": "NODE_ENV=production tsx src/server/main.ts",
