@@ -13,25 +13,26 @@ const selectWordsStatement = db.prepare(`
   ;
 `);
 
-export const selectLastLetterStatement = db.prepare(`
-  SELECT key_letter, letters, words, word_count, max_score, create_date FROM Letter ORDER BY id DESC LIMIT 1;
+const selectLetterByCreateDateStatement = db.prepare(`
+  SELECT key_letter, letters, words, word_count, max_score, create_date
+  FROM Letter 
+  WHERE create_date = ?;
 `);
 
-export const selectLetterByCreateDateStatement = db.prepare(`
-  SELECT key_letter, letters, words, word_count, max_score, create_date FROM Letter WHERE create_date = ?;
+const selectRandomLetterByCreateDateStatement = db.prepare(`
+  SELECT key_letter, letters, words, word_count, max_score, create_date
+  FROM Letter 
+  WHERE create_date NOT BETWEEN DATE(?, '-1 day') AND DATE(?, '+1 day')
+  ORDER BY RANDOM()
+  LIMIT 1;
 `);
-
-const selectLastLetterIdStatement = db.prepare(
-  `SELECT seq FROM sqlite_sequence WHERE name = 'Letter';`,
-);
 
 const insertLettersStatement = db.prepare(`
-  INSERT INTO Letter (key_letter, letters, words, word_count, max_score, create_date) VALUES (?, ?, ?, ?, ?, ?);
-`);
-
-const insertPrevLetterStatement = db.prepare(`
-  INSERT INTO Letter (key_letter, letters, words, word_count, max_score, create_date)
-  SELECT key_letter, letters, words, word_count, max_score, ? AS create_date FROM Letter WHERE id = ?;
+  INSERT INTO Letter (key_letter, letters, words, word_count, max_score, create_date) 
+  VALUES (?, ?, ?, ?, ?, ?) 
+  ON CONFLICT(create_date)
+  DO UPDATE SET create_date = create_date
+  RETURNING key_letter, letters, words, word_count, max_score, create_date;
 `);
 
 function getRandomLetters() {
@@ -70,6 +71,8 @@ function getRandomLetters() {
 }
 
 export default function updateLettersAndAnswers(createDate: string) {
+  const letter = selectLetterByCreateDateStatement.get(createDate);
+  if (letter) return letter;
   const ANSWER_TOTAL_MIN = 10;
   const LOOP_LIMIT = 100;
   let words = [];
@@ -89,7 +92,7 @@ export default function updateLettersAndAnswers(createDate: string) {
       (currScore: number, word: string) => currScore + countWordScore(word),
       0,
     );
-    insertLettersStatement.run(
+    return insertLettersStatement.get(
       keyLetter,
       otherLetters,
       wordsJSON,
@@ -98,8 +101,17 @@ export default function updateLettersAndAnswers(createDate: string) {
       createDate,
     );
   } else {
-    const { seq: lastLetterId } = selectLastLetterIdStatement.get();
-    const randomId = getRandomInt(1, lastLetterId - 1);
-    insertPrevLetterStatement.run(createDate, randomId);
+    const randomLetter = selectRandomLetterByCreateDateStatement.get(
+      createDate,
+      createDate,
+    );
+    return insertLettersStatement.get(
+      randomLetter["key_letter"],
+      randomLetter["letters"],
+      randomLetter["words"],
+      randomLetter["word_count"],
+      randomLetter["max_score"],
+      createDate,
+    );
   }
 }
