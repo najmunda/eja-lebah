@@ -1,38 +1,73 @@
-import { countWordScore } from "../utils.js";
+import { countWordScore, sql } from "../utils.js";
 import { getRandomInt } from "./utils.js";
 import db from "./db.js";
 
-const selectWordsStatement = db.prepare(`
-  SELECT DISTINCT word
-  FROM Word
-  WHERE 
+const selectWordsStatement = db.prepare(sql`
+  SELECT DISTINCT
+    word
+  FROM
+    Word
+  WHERE
     length(word) >= 4 -- Answer min length
-    AND regexp('^[a-z]+$', word) = 1 -- Only contains alphabet
+    AND REGEXP ('^[a-z]+$', word) = 1 -- Only contains alphabet
     AND instr(word, ?) > 0 -- Must contain key letter
-    AND regexp(?, word) = 1
-  ;
+    AND REGEXP (?, word) = 1;
 `);
 
-const selectLetterByCreateDateStatement = db.prepare(`
-  SELECT key_letter, letters, words, word_count, max_score, create_date
-  FROM Letter 
-  WHERE create_date = ?;
+const selectLetterByCreateDateStatement = db.prepare(sql`
+  SELECT
+    key_letter,
+    letters,
+    words,
+    word_count,
+    max_score,
+    create_date
+  FROM
+    Letter
+  WHERE
+    create_date = ?;
 `);
 
-const selectRandomLetterByCreateDateStatement = db.prepare(`
-  SELECT key_letter, letters, words, word_count, max_score, create_date
-  FROM Letter 
-  WHERE create_date NOT BETWEEN DATE(?, '-1 day') AND DATE(?, '+1 day')
-  ORDER BY RANDOM()
-  LIMIT 1;
+const selectRandomLetterByCreateDateStatement = db.prepare(sql`
+  SELECT
+    key_letter,
+    letters,
+    words,
+    word_count,
+    max_score,
+    create_date
+  FROM
+    Letter
+  WHERE
+    create_date NOT BETWEEN DATE(?, '-1 day') AND DATE(?, '+1 day')
+  ORDER BY
+    RANDOM()
+  LIMIT
+    1;
 `);
 
-const insertLettersStatement = db.prepare(`
-  INSERT INTO Letter (key_letter, letters, words, word_count, max_score, create_date) 
-  VALUES (?, ?, ?, ?, ?, ?) 
-  ON CONFLICT(create_date)
-  DO UPDATE SET create_date = create_date
-  RETURNING key_letter, letters, words, word_count, max_score, create_date;
+const insertLettersStatement = db.prepare(sql`
+  INSERT INTO
+    Letter (
+      key_letter,
+      letters,
+      words,
+      word_count,
+      max_score,
+      create_date
+    )
+  VALUES
+    (?, ?, ?, ?, ?, ?)
+  ON CONFLICT (create_date) DO UPDATE
+  SET
+    create_date = create_date
+  RETURNING
+    key_letter,
+    letters,
+    words,
+    word_count,
+    max_score,
+    create_date;
 `);
 
 function getRandomLetters() {
