@@ -11,10 +11,11 @@ const selectWordsStatement = db.prepare(sql`
     length(word) >= 4 -- Answer min length
     AND REGEXP ('^[a-z]+$', word) = 1 -- Only contains alphabet
     AND instr(word, ?) > 0 -- Must contain key letter
-    AND REGEXP (?, word) = 1;
+    AND REGEXP (?, word) = 1 -- Only contains 7 letter
+  ;
 `);
 
-const selectLetterByCreateDateStatement = db.prepare(sql`
+const selectQuizByCreateDateStatement = db.prepare(sql`
   SELECT
     key_letter,
     letters,
@@ -23,12 +24,12 @@ const selectLetterByCreateDateStatement = db.prepare(sql`
     max_score,
     create_date
   FROM
-    Letter
+    Quiz
   WHERE
     create_date = ?;
 `);
 
-const selectRandomLetterByCreateDateStatement = db.prepare(sql`
+const selectRandomQuizByCreateDateStatement = db.prepare(sql`
   SELECT
     key_letter,
     letters,
@@ -37,7 +38,7 @@ const selectRandomLetterByCreateDateStatement = db.prepare(sql`
     max_score,
     create_date
   FROM
-    Letter
+    Quiz
   WHERE
     create_date NOT BETWEEN DATE(?, '-1 day') AND DATE(?, '+1 day')
   ORDER BY
@@ -46,9 +47,9 @@ const selectRandomLetterByCreateDateStatement = db.prepare(sql`
     1;
 `);
 
-const insertLettersStatement = db.prepare(sql`
+const insertQuizStatement = db.prepare(sql`
   INSERT INTO
-    Letter (
+    Quiz (
       key_letter,
       letters,
       words,
@@ -70,7 +71,7 @@ const insertLettersStatement = db.prepare(sql`
     create_date;
 `);
 
-function getRandomLetters() {
+function getRandomLettersAndWords() {
   const LETTERS_TOTAL = 7;
   const VOCAL_TOTAL = getRandomInt(2, 3);
 
@@ -105,8 +106,8 @@ function getRandomLetters() {
   return { keyLetter, otherLetters, words };
 }
 
-export default function updateLettersAndAnswers(createDate: string) {
-  const letter = selectLetterByCreateDateStatement.get(createDate);
+export default function getOrCreateQuiz(createDate: string) {
+  const letter = selectQuizByCreateDateStatement.get(createDate);
   if (letter) return letter;
   const ANSWER_TOTAL_MIN = 10;
   const LOOP_LIMIT = 100;
@@ -117,7 +118,7 @@ export default function updateLettersAndAnswers(createDate: string) {
     words.length < ANSWER_TOTAL_MIN ||
     new Set(words.join("")).size !== 7
   ) {
-    ({ keyLetter, otherLetters, words } = getRandomLetters());
+    ({ keyLetter, otherLetters, words } = getRandomLettersAndWords());
     loopCount++;
     if (loopCount >= LOOP_LIMIT) break;
   }
@@ -127,7 +128,7 @@ export default function updateLettersAndAnswers(createDate: string) {
       (currScore: number, word: string) => currScore + countWordScore(word),
       0,
     );
-    return insertLettersStatement.get(
+    return insertQuizStatement.get(
       keyLetter,
       otherLetters,
       wordsJSON,
@@ -136,11 +137,11 @@ export default function updateLettersAndAnswers(createDate: string) {
       createDate,
     );
   } else {
-    const randomLetter = selectRandomLetterByCreateDateStatement.get(
+    const randomLetter = selectRandomQuizByCreateDateStatement.get(
       createDate,
       createDate,
     );
-    return insertLettersStatement.get(
+    return insertQuizStatement.get(
       randomLetter["key_letter"],
       randomLetter["letters"],
       randomLetter["words"],

@@ -178,7 +178,7 @@ export default function App() {
             ),
           );
         } else {
-          await fetch(`/api/answer/${todayDateStr}`)
+          await fetch(`/api/quiz/${todayDateStr}`)
             .then((response) => response.json())
             .then((fetchedData) => {
               // Set latest buttons and correct answers with fetched data

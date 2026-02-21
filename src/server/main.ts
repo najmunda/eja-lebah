@@ -3,7 +3,7 @@ import fs from "fs";
 import https from "https";
 import cors from "cors";
 import { CronJob } from "cron";
-import updateLettersAndAnswers from "./updateLetters.js";
+import getOrCreateQuiz from "./updateLetters.js";
 import ViteExpress from "vite-express";
 import { getJakartaDate } from "./utils.js";
 
@@ -17,21 +17,21 @@ app.use(cors());
 
 // Job for update letter on start of day
 function dailyJob() {
-  updateLettersAndAnswers(getJakartaDate(-1));
-  updateLettersAndAnswers(getJakartaDate());
-  updateLettersAndAnswers(getJakartaDate(1));
+  getOrCreateQuiz(getJakartaDate(-1));
+  getOrCreateQuiz(getJakartaDate());
+  getOrCreateQuiz(getJakartaDate(1));
 }
 
 new CronJob("0 0 0 * * *", dailyJob, null, true, "Asia/Jakarta", null, true);
 
 // Routes
 
-app.get("/api/answer/:date", (req, res) => {
+app.get("/api/quiz/:date", (req, res) => {
   const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
   const userTodayDate = req.params["date"];
   if (dateRegex.test(userTodayDate)) {
-    const todayLettersAndAnswers = updateLettersAndAnswers(userTodayDate);
-    res.status(200).json(todayLettersAndAnswers);
+    const todayQuiz = getOrCreateQuiz(userTodayDate);
+    res.status(200).json(todayQuiz);
   }
 });
 

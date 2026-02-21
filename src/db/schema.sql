@@ -1,4 +1,4 @@
-CREATE TABLE "Letter" (
+CREATE TABLE "Quiz" (
   "id" INTEGER NOT NULL UNIQUE,
   "key_letter" TEXT NOT NULL,
   "letters" TEXT NOT NULL,
