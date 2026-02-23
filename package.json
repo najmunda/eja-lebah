@@ -6,7 +6,7 @@
   "scripts": {
     "initdb": "nodemon -x tsx src/db/initDb.ts",
     "seed": "nodemon -x tsx src/db/seed.ts",
-    "dev": "nodemon -w src/server -x tsx src/server/main.ts",
+    "dev": "dotenv -e .env.development -- nodemon -w src/server -x tsx src/server/main.ts",
     "tes": "vite-express",
     "start": "NODE_ENV=production tsx src/server/main.ts",
     "build": "vite build",
@@ -38,6 +38,7 @@
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
     "dotenv": "^17.2.3",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",

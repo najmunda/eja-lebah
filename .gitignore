@@ -23,8 +23,9 @@ dist-ssr
 *.sln
 *.sw?
 
-nodemon.json
 *.db*
 todo.md
 *.key
 *.crt
+.env
+.env.*
