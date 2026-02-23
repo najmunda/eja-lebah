@@ -29,7 +29,10 @@ new CronJob("0 0 0 * * *", dailyJob, null, true, "Asia/Jakarta", null, true);
 app.get("/api/quiz/:date", (req, res) => {
   const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
   const userTodayDate = req.params["date"];
-  if (dateRegex.test(userTodayDate)) {
+  if (
+    dateRegex.test(userTodayDate) &&
+    new Date(userTodayDate).toString() !== "Invalid Date"
+  ) {
     const todayQuiz = getOrCreateQuiz(userTodayDate);
     res.status(200).json(todayQuiz);
   }
