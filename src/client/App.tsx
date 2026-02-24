@@ -196,6 +196,7 @@ export default function App() {
               );
             });
         }
+        window.history.replaceState(null, "", "/");
         setIsLoading(false);
       } catch (error) {
         showBoundary(error);
