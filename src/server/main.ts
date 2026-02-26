@@ -10,10 +10,12 @@ import { getJakartaDate } from "./utils.js";
 const app = express();
 
 // CORS
-const privateKey = fs.readFileSync("eja-lebah.key", "utf-8");
-const certificate = fs.readFileSync("eja-lebah.crt", "utf-8");
-const credentials = { key: privateKey, cert: certificate };
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.BASE_URL,
+    methods: "GET",
+  }),
+);
 
 // Job for update letter on start of day
 function dailyJob() {
@@ -42,9 +44,19 @@ app.get("/api", (req, res) => {
   res.send("Hello Server!");
 });
 
-const httpsServer = https.createServer(credentials, app);
-const server = httpsServer.listen(process.env.PORT, "0.0.0.0", () =>
-  console.log(`Server is listening on port ${process.env.PORT}...`),
-);
+if (process.env.NODE_ENV === "production") {
+  const privateKey = fs.readFileSync("eja-lebah.key", "utf-8");
+  const certificate = fs.readFileSync("eja-lebah.crt", "utf-8");
+  const credentials = { key: privateKey, cert: certificate };
 
-ViteExpress.bind(app, server);
+  const httpsServer = https.createServer(credentials, app);
+  const server = httpsServer.listen(process.env.PORT, "0.0.0.0", () =>
+    console.log(`Server is listening on port ${process.env.PORT}...`),
+  );
+  ViteExpress.bind(app, server);
+} else {
+  const server = app.listen(process.env.PORT, "0.0.0.0", () =>
+    console.log(`Server is listening on port ${process.env.PORT}...`),
+  );
+  ViteExpress.bind(app, server);
+}

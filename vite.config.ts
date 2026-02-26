@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     allowedHosts: ["hipi.local"],
     proxy: {
-      '/api': `https://localhost:${process.env.PORT}/api`,
+      '/api': `${process.env.BASE_URL}/api`,
     },
     host: true,
   },
