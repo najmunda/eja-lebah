@@ -50,18 +50,18 @@ app.use("/api", (req, res) => {
   res.status(404).send("Not Found");
 });
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "development") {
+  const server = app.listen(process.env.PORT, "0.0.0.0", () =>
+    console.log(`Server is listening on port ${process.env.PORT}...`),
+  );
+  ViteExpress.bind(app, server);
+} else {
   const privateKey = fs.readFileSync("eja-lebah.key", "utf-8");
   const certificate = fs.readFileSync("eja-lebah.crt", "utf-8");
   const credentials = { key: privateKey, cert: certificate };
 
   const httpsServer = https.createServer(credentials, app);
   const server = httpsServer.listen(process.env.PORT, "0.0.0.0", () =>
-    console.log(`Server is listening on port ${process.env.PORT}...`),
-  );
-  ViteExpress.bind(app, server);
-} else {
-  const server = app.listen(process.env.PORT, "0.0.0.0", () =>
     console.log(`Server is listening on port ${process.env.PORT}...`),
   );
   ViteExpress.bind(app, server);

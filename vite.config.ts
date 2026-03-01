@@ -9,7 +9,6 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    allowedHosts: ["hipi.local"],
     proxy: {
       '/api': `${process.env.BASE_URL}/api`,
     },
