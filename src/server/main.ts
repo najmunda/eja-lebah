@@ -28,7 +28,7 @@ new CronJob("0 0 0 * * *", dailyJob, null, true, "Asia/Jakarta", null, true);
 
 // Routes
 
-app.get("/api/quiz/:date", (req, res) => {
+app.get("/api/quiz/:date", (req, res, next) => {
   const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
   const userTodayDate = req.params["date"];
   if (
@@ -37,11 +37,17 @@ app.get("/api/quiz/:date", (req, res) => {
   ) {
     const todayQuiz = getOrCreateQuiz(userTodayDate);
     res.status(200).json(todayQuiz);
+  } else {
+    next();
   }
 });
 
 app.get("/api", (req, res) => {
-  res.send("Hello Server!");
+  res.status(200).send("Online");
+});
+
+app.use("/api", (req, res) => {
+  res.status(404).send("Not Found");
 });
 
 if (process.env.NODE_ENV === "production") {
