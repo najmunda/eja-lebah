@@ -29,16 +29,20 @@ new CronJob("0 0 0 * * *", dailyJob, null, true, "Asia/Jakarta", null, true);
 // Routes
 
 app.get("/api/quiz/:date", (req, res, next) => {
-  const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
-  const userTodayDate = req.params["date"];
-  if (
-    dateRegex.test(userTodayDate) &&
-    new Date(userTodayDate).toString() !== "Invalid Date"
-  ) {
-    const todayQuiz = getOrCreateQuiz(userTodayDate);
-    res.status(200).json(todayQuiz);
-  } else {
-    next();
+  try {
+    const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+    const userTodayDate = req.params["date"];
+    if (
+      dateRegex.test(userTodayDate) &&
+      new Date(userTodayDate).toString() !== "Invalid Date"
+    ) {
+      const todayQuiz = getOrCreateQuiz(userTodayDate);
+      res.status(200).json(todayQuiz);
+    } else {
+      next();
+    }
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -48,6 +52,11 @@ app.get("/api", (req, res) => {
 
 app.use("/api", (req, res) => {
   res.status(404).send("Not Found");
+});
+
+app.use((error, req, res, next) => {
+  console.error("error", error);
+  res.status(500).send("Internal Server Error");
 });
 
 if (process.env.NODE_ENV === "development") {
