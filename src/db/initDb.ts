@@ -1,12 +1,24 @@
-import Database from "better-sqlite3";
-import * as sqlite_regex from "sqlite-regex";
 import { readFileSync } from "node:fs";
 import path, { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { Client } from "pg";
 
-const db = new Database(process.env.DB_NAME);
-db.pragma("journal_mode = WAL");
-db.loadExtension(sqlite_regex.getLoadablePath());
-
+const client = new Client({
+  connectionString: process.env.DB_CONNECTION_STRING,
+});
 const __dirname = dirname(fileURLToPath(import.meta.url));
-db.exec(readFileSync(path.resolve(__dirname, "schema.sql"), "utf-8"));
+
+await client.connect();
+
+try {
+  await client.query("BEGIN");
+  await client.query(
+    readFileSync(path.resolve(__dirname, "schema.sql"), "utf-8"),
+  );
+  await client.query("COMMIT");
+} catch (error) {
+  console.error(error);
+  await client.query("ROLLBACK");
+} finally {
+  await client.end();
+}

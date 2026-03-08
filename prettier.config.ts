@@ -9,7 +9,7 @@ const prettierPluginEmbedConfig = {
 }
 
 const prettierPluginSqlConfig = {
-  language: 'sqlite',
+  language: 'postgresql',
   keywordCase: 'upper',
 }
 
