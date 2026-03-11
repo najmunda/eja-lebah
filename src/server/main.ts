@@ -2,10 +2,8 @@ import express from "express";
 import fs from "fs";
 import https from "https";
 import cors from "cors";
-import { CronJob } from "cron";
 import getOrCreateQuiz from "./getOrCreateQuiz.js";
 import ViteExpress from "vite-express";
-import { getJakartaDate } from "./utils.js";
 
 const app = express();
 
@@ -17,17 +15,7 @@ app.use(
   }),
 );
 
-// Job for update letter on start of day
-async function dailyJob() {
-  await getOrCreateQuiz(getJakartaDate(-1));
-  await getOrCreateQuiz(getJakartaDate());
-  await getOrCreateQuiz(getJakartaDate(1));
-}
-
-new CronJob("0 0 0 * * *", dailyJob, null, true, "Asia/Jakarta", null, true);
-
 // Routes
-
 app.get("/api/quiz/:date", async (req, res, next) => {
   try {
     const dateRegex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
