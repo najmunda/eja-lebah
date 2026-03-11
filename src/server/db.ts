@@ -1,10 +1,9 @@
-import Database from "better-sqlite3";
-import * as sqlite_regex from "sqlite-regex";
+import { Pool } from "pg";
 
-const db = new Database(process.env.DB_NAME, {
-  fileMustExist: true,
+const pool = new Pool({
+  connectionString: process.env.DB_CONNECTION_STRING,
 });
-db.pragma("journal_mode = WAL");
-db.loadExtension(sqlite_regex.getLoadablePath());
 
-export default db;
+export function query(query, params) {
+  return pool.query(query, params);
+}

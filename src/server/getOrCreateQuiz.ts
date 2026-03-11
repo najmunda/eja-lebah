@@ -1,21 +1,21 @@
 import { countWordScore, sql } from "../utils.js";
 import { getRandomInt } from "./utils.js";
-import db from "./db.js";
+import * as db from "./db.js";
 
-const selectWordsStatement = db.prepare(sql`
+const selectWordsStatement = sql`
   SELECT DISTINCT
     word
   FROM
-    Word
+    word
   WHERE
     length(word) >= 4 -- Answer min length
-    AND REGEXP ('^[a-z]+$', word) = 1 -- Only contains alphabet
-    AND instr(word, ?) > 0 -- Must contain key letter
-    AND REGEXP (?, word) = 1 -- Only contains 7 letter
+    AND word ~ '^[a-z]+$' -- Only contains alphabet
+    AND POSITION($1 IN word) > 0 -- Must contain key letter
+    AND word ~ $2 -- Only contains 7 letter
   ;
-`);
+`;
 
-const selectQuizByCreateDateStatement = db.prepare(sql`
+const selectQuizByCreateDateStatement = sql`
   SELECT
     key_letter,
     letters,
@@ -26,28 +26,10 @@ const selectQuizByCreateDateStatement = db.prepare(sql`
   FROM
     Quiz
   WHERE
-    create_date = ?;
-`);
+    create_date = $1;
+`;
 
-const selectRandomQuizByCreateDateStatement = db.prepare(sql`
-  SELECT
-    key_letter,
-    letters,
-    words,
-    word_count,
-    max_score,
-    create_date
-  FROM
-    Quiz
-  WHERE
-    create_date NOT BETWEEN DATE(?, '-1 day') AND DATE(?, '+1 day')
-  ORDER BY
-    RANDOM()
-  LIMIT
-    1;
-`);
-
-const insertQuizStatement = db.prepare(sql`
+const insertQuizStatement = sql`
   INSERT INTO
     Quiz (
       key_letter,
@@ -58,10 +40,10 @@ const insertQuizStatement = db.prepare(sql`
       create_date
     )
   VALUES
-    (?, ?, ?, ?, ?, ?)
+    ($1, $2, $3, $4, $5, $6)
   ON CONFLICT (create_date) DO UPDATE
   SET
-    create_date = create_date
+    create_date = quiz.create_date
   RETURNING
     key_letter,
     letters,
@@ -69,9 +51,9 @@ const insertQuizStatement = db.prepare(sql`
     word_count,
     max_score,
     create_date;
-`);
+`;
 
-function getRandomLettersAndWords() {
+async function getRandomLettersAndWords() {
   const LETTERS_TOTAL = 7;
   const VOCAL_TOTAL = getRandomInt(2, 3);
 
@@ -97,18 +79,20 @@ function getRandomLettersAndWords() {
 
   const randomIndex = getRandomInt(0, LETTERS_TOTAL - 1);
   const keyLetter = chosenLetters[randomIndex];
-  const includeAllLettersRegex = `\\b[${chosenLetters}]+\\b`;
+  const includeAllLettersRegex = `^[${chosenLetters}]+$`;
   const otherLetters = chosenLetters.replace(keyLetter, "");
-  const words = selectWordsStatement
-    .all(keyLetter, includeAllLettersRegex)
-    .map((row: { word: string }) => row.word);
+  const words = (
+    await db.query(selectWordsStatement, [keyLetter, includeAllLettersRegex])
+  ).rows.map((row: { word: string }) => row.word);
 
   return { keyLetter, otherLetters, words };
 }
 
-export default function getOrCreateQuiz(createDate: string) {
-  const letter = selectQuizByCreateDateStatement.get(createDate);
-  if (letter) return letter;
+export default async function getOrCreateQuiz(createDate: string) {
+  const selectQuizResult = await db.query(selectQuizByCreateDateStatement, [
+    createDate,
+  ]);
+  if (selectQuizResult.rows.length) return selectQuizResult.rows[0];
   const ANSWER_TOTAL_MIN = 10;
   const LOOP_LIMIT = 100;
   let words = [];
@@ -118,7 +102,7 @@ export default function getOrCreateQuiz(createDate: string) {
     words.length < ANSWER_TOTAL_MIN ||
     new Set(words.join("")).size !== 7
   ) {
-    ({ keyLetter, otherLetters, words } = getRandomLettersAndWords());
+    ({ keyLetter, otherLetters, words } = await getRandomLettersAndWords());
     loopCount++;
     if (loopCount >= LOOP_LIMIT) break;
   }
@@ -128,26 +112,16 @@ export default function getOrCreateQuiz(createDate: string) {
       (currScore: number, word: string) => currScore + countWordScore(word),
       0,
     );
-    return insertQuizStatement.get(
+    const insertQuizResult = await db.query(insertQuizStatement, [
       keyLetter,
       otherLetters,
       wordsJSON,
       words.length,
       maxScore,
       createDate,
-    );
+    ]);
+    return insertQuizResult.rows[0];
   } else {
-    const randomLetter = selectRandomQuizByCreateDateStatement.get(
-      createDate,
-      createDate,
-    );
-    return insertQuizStatement.get(
-      randomLetter["key_letter"],
-      randomLetter["letters"],
-      randomLetter["words"],
-      randomLetter["word_count"],
-      randomLetter["max_score"],
-      createDate,
-    );
+    throw new Error("Quiz failed to generate");
   }
 }

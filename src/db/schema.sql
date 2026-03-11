@@ -8,7 +8,7 @@ CREATE TABLE quiz (
   words TEXT NOT NULL DEFAULT '[]',
   word_count INTEGER NOT NULL DEFAULT 0,
   max_score INTEGER NOT NULL DEFAULT 0,
-  create_date DATE NOT NULL UNIQUE,
+  create_date TEXT NOT NULL UNIQUE,
   create_time TIME NOT NULL DEFAULT LOCALTIME
 );
 

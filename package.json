@@ -4,10 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "dotenv -e .env.development -- nodemon -w src/server -x tsx src/server/main.ts",
+    "dev": "dotenv -e .env.render.development -- nodemon -w src/server -x tsx src/server/main.ts",
     "lint": "eslint src --fix",
     "prettier": "prettier src/ --write",
-    "tes": "vite-express",
     "build": "vite build",
     "start": "dotenv -e .env.render.development -- tsx src/server/main.ts",
     "dev-initdb": "dotenv -e .env.render.development -- tsx src/db/initDb.ts",
