@@ -8,7 +8,7 @@
     "prod-initdb": "dotenv -e .env.production -- tsx src/db/initDb.ts",
     "dev": "dotenv -e .env.development -- nodemon -w src/server -x tsx src/server/main.ts",
     "tes": "vite-express",
-    "start": "NODE_ENV=production tsx src/server/main.ts",
+    "start": "dotenv -e .env.production -- tsx src/server/main.ts",
     "build": "vite build",
     "lint": "eslint src --fix",
     "prettier": "prettier src/ --write"
