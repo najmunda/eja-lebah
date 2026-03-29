@@ -9,7 +9,7 @@
     "dev": "dotenv -e .env.development -- nodemon -w src/server -x tsx src/server/main.ts",
     "tes": "vite-express",
     "start": "dotenv -e .env.production -- tsx src/server/main.ts",
-    "build": "vite build",
+    "build": "dotenv -e .env.production -- vite build",
     "lint": "eslint src --fix",
     "prettier": "prettier src/ --write"
   },
