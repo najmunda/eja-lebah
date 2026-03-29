@@ -5,12 +5,16 @@ const db = new Database(process.env.DB_NAME, {
   fileMustExist: true,
 });
 db.pragma("journal_mode = WAL");
-db.loadExtension("./regex0");
+db.loadExtension("./regexp");
 console.log(
   db
     .prepare(sql`
       SELECT
-        regex_version ()
+        true AS regexp_extension_loaded
+      WHERE
+        'the year is 2021' REGEXP '[0-9]+';
+
+      -- 1
     `)
     .get(),
 );

@@ -9,9 +9,9 @@ const selectWordsStatement = db.prepare(sql`
     Word
   WHERE
     length(word) >= 4 -- Answer min length
-    AND REGEXP ('^[a-z]+$', word) = 1 -- Only contains alphabet
+    AND regexp_like (word, '^[a-z]+$') = 1 -- Only contains alphabet
     AND instr(word, ?) > 0 -- Must contain key letter
-    AND REGEXP (?, word) = 1 -- Only contains 7 letter
+    AND regexp_like (word, ?) = 1 -- Only contains 7 letter
   ;
 `);
 
