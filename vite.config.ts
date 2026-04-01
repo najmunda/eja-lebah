@@ -8,10 +8,4 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  server: {
-    proxy: {
-      '/api': `${process.env.BASE_URL}/api`,
-    },
-    host: true,
-  },
 });
