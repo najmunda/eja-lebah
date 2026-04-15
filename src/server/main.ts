@@ -47,16 +47,16 @@ app.get("/api/quiz/:date", (req, res, next) => {
 });
 
 app.get("/api", (req, res) => {
-  res.status(200).send("Online");
+  res.status(200).json({ message: "Online" });
 });
 
 app.use("/api", (req, res) => {
-  res.status(404).send("Not Found");
+  res.status(404).json({ message: "Not Found" });
 });
 
 app.use((error, req, res, next) => {
   console.error("error", error);
-  res.status(500).send("Internal Server Error");
+  res.status(500).json({ message: "Internal Server Error" });
 });
 
 if (process.env.NODE_ENV === "development") {
