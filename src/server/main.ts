@@ -70,8 +70,7 @@ if (process.env.NODE_ENV === "development") {
   const credentials = { key: privateKey, cert: certificate };
 
   const httpsServer = https.createServer(credentials, app);
-  const server = httpsServer.listen(process.env.PORT, "0.0.0.0", () =>
+  httpsServer.listen(process.env.PORT, "0.0.0.0", () =>
     console.log(`Server is listening on port ${process.env.PORT}...`),
   );
-  ViteExpress.bind(app, server);
 }
