@@ -29,3 +29,5 @@ todo.md
 *.crt
 .env
 .env.*
+
+*.so
