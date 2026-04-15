@@ -179,7 +179,11 @@ export default function App() {
           );
         } else {
           await fetch(`/api/quiz/${todayDateStr}`)
-            .then((response) => response.json())
+            .then(async (response) => {
+              const jsonData = await response.json();
+              if (response.status === 200) return jsonData;
+              else throw new Error(jsonData["message"]);
+            })
             .then((fetchedData) => {
               // Set latest buttons and correct answers with fetched data
               centerLetter.current = fetchedData["key_letter"];
